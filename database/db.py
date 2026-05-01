@@ -54,6 +54,21 @@ def get_user_by_email(email):
     return user
 
 
+def verify_user_password(email, password):
+    """Verify user password. Returns user dict if valid, None if invalid."""
+    from werkzeug.security import check_password_hash
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user and check_password_hash(user["password_hash"], password):
+        return user
+    return None
+
+
 def create_user(name, email, password):
     """Create new user with hashed password. Returns new user ID."""
     conn = get_db()
