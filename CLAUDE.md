@@ -18,6 +18,7 @@ spendly/
 ├── static/
 │   ├── css/
 │   │   ├── style.css       # Global styles
+│   │   └── landing.css     # Landing-page-only styles
 │   └── js/
 │       └── main.js         # Vanilla JS only
 └── requirements.txt
