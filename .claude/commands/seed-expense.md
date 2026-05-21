@@ -4,7 +4,9 @@ argument-hint: "<user_id> <count> <months>"
 allowed-tools: Read, Bash(python3:*)
 ---
 
-Read database/db.py to understand the expenses table schema, the db connection pattern, and the database file name.
+Read database/db.py to understand the expenses table 
+schema, the db connection pattern, and the database 
+file name.
 
 User input: $ARGUMENTS
 
@@ -21,7 +23,8 @@ Example: /seed-expenses 1 50 6"
 
 ## Step 2 — Verify user exists
 
-Before generating anything, confirm the user_id exists in the users table. If not, stop and say:
+Before generating anything, confirm the user_id exists 
+in the users table. If not, stop and say:
 "No user found with id <user_id>."
 
 ## Step 3 — Generate and insert expenses

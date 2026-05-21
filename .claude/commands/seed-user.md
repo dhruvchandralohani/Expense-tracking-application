@@ -1,9 +1,10 @@
 ---
 description: Create a single dummy user in the database
-allowed-tools: Read, Bash(python:*)
+allowed-tools: Read, Bash(python3:*)
 ---
 
-Read database/db.py to understand the users table schema and the get_db() helper.
+Read database/db.py to understand the users table 
+schema and the get_db() helper.
 
 Then write and run a Python script using Bash that:
 

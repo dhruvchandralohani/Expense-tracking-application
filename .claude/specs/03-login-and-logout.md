@@ -1,64 +1,53 @@
 # Spec: Login and Logout
 
 ## Overview
-
-This feature implements user authentication for the Spendly expense tracker. It enables users to log in with their registered email and password, and log out to end their session. Login is the gateway to all protected routes (profile, expenses), while logout securely terminates the user session. This step builds on the registration system from Step 2.
+This feature implements user authentication for Spendly. It converts the `/login` stub into a functional POST handler that verifies credentials against the database, stores the authenticated user's ID in the session, and redirects to the dashboard (or a suitable landing page). It also implements the `/logout` stub, which clears the session and redirects to the landing page. After this step, the app can distinguish logged-in users from guests, which is a prerequisite for all expense features.
 
 ## Depends on
-
-- Step 1 (Database Setup) — users table and helper functions
-- Step 2 (Registration) — user creation and password hashing
+- Step 01 — Database Setup (`users` table must exist)
+- Step 02 — Registration (`create_user` and password hashing must be in place; a user must exist to log in against)
 
 ## Routes
-
-| Route | Method | Description | Access |
-|-------|--------|-------------|--------|
-| `/login` | GET, POST | Display login form and process authentication | Public |
-| `/logout` | GET | Clear session and redirect to login | Logged-in |
+- `GET /login` — render login form — public
+- `POST /login` — validate credentials, set session, redirect — public
+- `GET /logout` — clear session, redirect to `/` — public (no login required to log out)
 
 ## Database changes
-
-No database changes — uses existing `users` table from Step 1.
+No database changes. The `users` table created in Step 01 already stores `email` and `password_hash`.
 
 ## Templates
-
-- **Modify:** `templates/login.html` — add form with email/password fields, error display, and submit button
-- **Create:** None (login.html exists but needs implementation)
+- **Modify:** `templates/login.html` — add a POST form with `email` and `password` fields, flash message display, and a link to `/register`
 
 ## Files to change
-
-- `app.py` — implement POST handler for `/login` route with credential validation
-- `database/db.py` — add `verify_user_password(email, password)` helper
-- `templates/login.html` — replace placeholder with working login form
-- `templates/base.html` — add session-aware navigation (show logout when logged in)
+- `app.py` — implement `login()` as GET+POST handler and implement `logout()`
+- `database/db.py` — add `get_user_by_email(email)` helper that returns a user row or `None`
+- `templates/login.html` — add POST form and flash display
 
 ## Files to create
-
-None.
+No new files.
 
 ## New dependencies
-
-No new dependencies — uses existing `werkzeug.security` for password verification.
+No new dependencies. `werkzeug.security.check_password_hash` is already available via the existing `werkzeug` install.
 
 ## Rules for implementation
-
-- Use Flask sessions for authentication state (`session['user_id']`)
-- Password verification must use `werkzeug.security.check_password_hash()`
-- All queries parameterized with `?` placeholders — never f-strings in SQL
-- Session-based auth check: redirect to `/login` if `user_id` not in session
-- Use CSS variables from `style.css` — never hardcode hex values
+- No SQLAlchemy or ORMs — use raw `sqlite3` via `get_db()`
+- Parameterised queries only — never use f-strings in SQL
+- Passwords verified with `werkzeug.security.check_password_hash`
+- Session key for the logged-in user must be `session["user_id"]` (integer)
+- Use `flask.session` — do not roll a custom session mechanism
+- Use CSS variables — never hardcode hex values
 - All templates extend `base.html`
-- After successful login: redirect to `/profile`
-- After logout: redirect to `/login`
-- Display flash messages for login/logout feedback
+- Use `url_for()` for every internal link — never hardcode paths
+- On failed login show a generic flash error ("Invalid email or password.") — do not reveal which field was wrong
+- After successful login redirect to `url_for("landing")` until a dashboard route exists
+- `logout()` must call `session.clear()` then redirect to `url_for("landing")`
+- `get_user_by_email` belongs in `database/db.py`, not inline in the route
 
 ## Definition of done
-
-- [ ] GET `/login` renders login form with email and password fields
-- [ ] POST `/login` validates credentials against database
-- [ ] Invalid credentials show error message on login page
-- [ ] Valid credentials set session and redirect to `/profile`
-- [ ] GET `/logout` clears session and redirects to `/login`
-- [ ] Protected routes (e.g., `/profile`) redirect to `/login` when not authenticated
-- [ ] Navigation in `base.html` shows "Logout" link when logged in
-- [ ] App runs without errors on port 5001
+- [ ] Visiting `GET /login` renders the login form with email and password fields
+- [ ] Submitting the form with valid credentials (e.g. demo@spendly.com / demo123) sets `session["user_id"]` and redirects to `/`
+- [ ] Submitting with a wrong password shows "Invalid email or password." flash and stays on the login page
+- [ ] Submitting with an unregistered email shows the same generic error flash
+- [ ] Visiting `GET /logout` clears the session and redirects to `/`
+- [ ] After logout, `session["user_id"]` is no longer present
+- [ ] The `/logout` route no longer returns the raw stub string
